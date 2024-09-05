@@ -1,3 +1,3 @@
-export function generateClassName(...classNames: string[]): string {
-	return classNames.join(" ");
+export function generateClassName(...classNames: (string | undefined)[]): string {
+	return classNames.filter((value) => value).join(" ");
 }
