@@ -1,55 +1,208 @@
 export type TaskRecord = Record<string, Task>;
 
 export interface Task {
+	id: string;
+	parentId?: string;
 	name: string;
 	isCompleted: boolean;
 	creationDate: Date;
-	previousTaskId?: string;
-	subtasks?: TaskRecord;
+	order: number;
 }
 
-export const getTasks = (): TaskRecord => {
-	return {
-		aBcD3FgHiJkLmNo: {
+export const getTasks = (): Task[] => {
+	return [
+		{
+			id: "aBcD3FgHiJkLmNo",
 			name: "Manger de la choucroute",
-			creationDate: new Date(2024, 9, 3, 18, 50, 36, 2),
 			isCompleted: false,
+			creationDate: new Date(2024, 9, 3, 18, 50, 36, 2),
+			order: 1,
 		},
-		XyZ1wV4tYu8QpLm: {
-			previousTaskId: "PqRsTuVwXyZaBcD",
-			name: "Regarder Harry Potter 3",
-			creationDate: new Date(2024, 9, 4, 17, 20, 46, 8),
-			isCompleted: true,
-			subtasks: {
-				MnOpQr2StUvWxYz: {
-					name: "Brancher la télé",
-					creationDate: new Date(2024, 9, 4, 17, 22, 10, 8),
-					isCompleted: true,
-				},
-				C7D8EfGhIjKlMnO: {
-					previousTaskId: "MnOpQr2StUvWxYz",
-					name: "Trouver la télécommande",
-					creationDate: new Date(2024, 9, 4, 19, 28, 34, 20),
-					isCompleted: true,
-				},
-				C7D8AcF3IjKlMnO: {
-					previousTaskId: "C7D8EfGhIjKlMnO",
-					name: "Allumer les enceintes",
-					creationDate: new Date(2024, 9, 6, 19, 28, 34, 20),
-					isCompleted: false,
-				},
-			},
-		},
-		PqRsTuVwXyZaBcD: {
-			previousTaskId: "aBcD3FgHiJkLmNo",
+		{
+			id: "PqRsTuVwXyZaBcD",
 			name: "Caresser le chat",
-			creationDate: new Date(2024, 9, 4, 17, 22, 10, 8),
 			isCompleted: true,
+			creationDate: new Date(2024, 9, 4, 17, 22, 10, 8),
+			order: 0,
 		},
+		{
+			id: "XyZ1wV4tYu8QpLm",
+			name: "Regarder Harry Potter 3",
+			isCompleted: false,
+			creationDate: new Date(2024, 9, 4, 17, 20, 46, 8),
+			order: 2,
+		},
+		{
+			id: "MnOpQr2StUvWxYz",
+			parentId: "XyZ1wV4tYu8QpLm",
+			name: "Brancher la télé",
+			isCompleted: true,
+			creationDate: new Date(2024, 9, 4, 17, 22, 10, 8),
+			order: 0,
+		},
+		{
+			id: "C7D8EfGhIjKlMnO",
+			parentId: "XyZ1wV4tYu8QpLm",
+			name: "Trouver la télécommande",
+			isCompleted: true,
+			creationDate: new Date(2024, 9, 4, 19, 28, 34, 20),
+			order: 1,
+		},
+		{
+			id: "C7D8AcF3IjKlMnO",
+			parentId: "XyZ1wV4tYu8QpLm",
+			name: "Allumer les enceintes",
+			isCompleted: false,
+			creationDate: new Date(2024, 9, 6, 19, 28, 34, 20),
+			order: 2,
+		},
+	];
+};
+
+const generateRandomString = (length: number = 15): string => {
+	const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	let result = "";
+	for (let i = 0; i < length; i++) {
+		const randomIndex = Math.floor(Math.random() * characters.length);
+		result += characters.charAt(randomIndex);
+	}
+	return result;
+};
+
+const findTaskById = (id: string, tasks: Task[]): Task | undefined => {
+	return tasks.find((task) => task.id === id);
+};
+
+const generateNewId = (allTasks: Task[]) => {
+	let id = "";
+	do {
+		id = generateRandomString();
+	} while (findTaskById(id, allTasks));
+	return id;
+};
+
+export const createNewTask = (allTasks: Task[], parentId?: string, nextTaskId?: string): Task => {
+	const tasks = [...allTasks];
+	const sameLevelTasks = tasks.filter((task) => task.parentId === parentId);
+	let order = sameLevelTasks.length;
+	if (nextTaskId) {
+		const previousTask = findTaskById(nextTaskId, allTasks);
+		if (previousTask) {
+			order = previousTask.order;
+		}
+	}
+	return {
+		id: generateNewId(allTasks),
+		name: "Nouvelle tâche",
+		creationDate: new Date(),
+		isCompleted: false,
+		parentId,
+		order,
 	};
 };
 
-export const sortTasks = (tasks: TaskRecord): TaskRecord => {
+export const updateTask = (taskId: string, propertyName: string, newValue: string | boolean | number | undefined, allTasks: Task[]) => {
+	const tasks = [...allTasks];
+	const taskIndex = tasks.findIndex((task) => task.id === taskId);
+	if (taskIndex === -1) {
+		return tasks;
+	}
+	tasks[taskIndex] = {
+		...tasks[taskIndex],
+		[propertyName]: newValue,
+	};
+	return tasks;
+};
+
+const updateSameLevelTasksOrder = (task: Task, allTasks: Task[], action: "add" | "delete") => {
+	let tasks = [...allTasks];
+	const sameLevelTasks = tasks.filter((filteredTask) => task.parentId === filteredTask.parentId);
+	for (const sameLevelTask of sameLevelTasks) {
+		if (sameLevelTask.order >= task.order) {
+			const newOrder = action === "add" ? sameLevelTask.order + 1 : sameLevelTask.order - 1;
+			tasks = updateTask(sameLevelTask.id, "order", newOrder, tasks);
+		}
+	}
+	return tasks;
+};
+
+export const addTask = (task: Task, allTasks: Task[]) => {
+	let tasks = updateSameLevelTasksOrder(task, allTasks, "add");
+	if (task.parentId) {
+		tasks = updateTaskCompletion(false, task.parentId, tasks);
+	}
+	tasks.push(task);
+	return tasks;
+};
+
+export const removeTask = (taskId: string, allTasks: Task[]) => {
+	const task = findTaskById(taskId, allTasks);
+	const taskIndex = allTasks.findIndex((task) => task.id === taskId);
+	if (!task || taskIndex === -1) {
+		return allTasks;
+	}
+	let tasks = updateSameLevelTasksOrder(task, allTasks, "delete");
+	const subtasks = tasks.filter((subtask) => subtask.parentId === taskId);
+	const sameLevelTasks = tasks.filter((filteredTask) => task.parentId === filteredTask.parentId);
+	for (let i = 0; i < subtasks.length; i++) {
+		tasks = updateTask(subtasks[i].id, "parentId", task.parentId, tasks);
+		tasks = updateTask(subtasks[i].id, "order", sameLevelTasks.length + i, tasks);
+	}
+	tasks.splice(taskIndex, 1);
+	return tasks;
+};
+
+export const swapOrder = (taskId: string, direction: "ASC" | "DESC", allTasks: Task[]) => {
+	let tasks = [...allTasks];
+	const task = findTaskById(taskId, tasks);
+	if (!task) {
+		return tasks;
+	}
+	const taskToSwap = tasks.find((taskFind) => {
+		if (taskFind.parentId === task.parentId) {
+			if (direction === "ASC" && taskFind.order === task.order - 1) {
+				return true;
+			}
+			if (direction === "DESC" && taskFind.order === task.order + 1) {
+				return true;
+			}
+		}
+		return false;
+	});
+	if (!taskToSwap) {
+		return tasks;
+	}
+	tasks = updateTask(task.id, "order", direction === "ASC" ? task.order - 1 : task.order + 1, tasks);
+	tasks = updateTask(taskToSwap.id, "order", direction === "ASC" ? taskToSwap.order + 1 : taskToSwap.order - 1, tasks);
+	return tasks;
+};
+
+export const updateTaskCompletion = (isCompleted: boolean, taskId: string, allTasks: Task[]): Task[] => {
+	let tasks = [...allTasks];
+	const task = findTaskById(taskId, tasks);
+	if (!task) {
+		return tasks;
+	}
+	tasks = updateTask(task.id, "isCompleted", isCompleted, tasks);
+	if (task.parentId) {
+		tasks = updateParentTaskCompletion(task.parentId, tasks);
+	}
+	return tasks;
+};
+
+const updateParentTaskCompletion = (parentId: string, tasks: Task[]): Task[] => {
+	const parentTask = findTaskById(parentId, tasks);
+	if (!parentTask) return tasks;
+	const sameLevelTasks = tasks.filter((sameLevelTask) => sameLevelTask.parentId === parentId);
+	const allSameLevelTasksCompleted = sameLevelTasks.every((task) => task.isCompleted);
+	tasks = updateTask(parentTask.id, "isCompleted", allSameLevelTasksCompleted, tasks);
+	if (parentTask.parentId) {
+		tasks = updateParentTaskCompletion(parentTask.parentId, tasks);
+	}
+	return tasks;
+};
+
+/* export const sortTasks = (tasks: TaskRecord): TaskRecord => {
 	const sortedTasks: TaskRecord = {};
 	let currentTaskEntry = Object.entries(tasks).find(([, task]) => !task.previousTaskId);
 	while (currentTaskEntry) {
@@ -203,4 +356,4 @@ export const changeTaskOrder = (direction: "ASC" | "DESC", taskId: string, tasks
 		}
 	}
 	return sameLevelTasks;
-};
+}; */

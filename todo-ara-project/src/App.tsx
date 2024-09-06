@@ -4,11 +4,11 @@ import { Header } from "./components/Header";
 import { MobileFooter } from "./components/MobileFooter";
 import { TaskList } from "./components/TaskList";
 import { Button } from "./components/utils/Button";
-import { TaskRecord, addTaskRecursively, createNewTask, getTasks } from "./services/TaskService";
+import { Task, TaskRecord, getTasks } from "./services/TaskService";
 import { createContext, useState } from "react";
 
 export interface ListOutletContext {
-	tasksState: [TaskRecord, React.Dispatch<React.SetStateAction<TaskRecord>>];
+	tasksState: [Task[], React.Dispatch<React.SetStateAction<Task[]>>];
 }
 
 export const ListContext = createContext<ListOutletContext | null>(null);
@@ -23,7 +23,7 @@ function App() {
 		<ListContext.Provider value={{ tasksState }}>
 			<Header />
 			<div className="relative top-40 p-10 pb-20 md:pb-0 h-full w-full">
-				<TaskList tasks={tasks} />
+				<TaskList tasks={tasks.filter((task) => task.parentId === undefined)} />
 			</div>
 			<MobileFooter />
 		</ListContext.Provider>
