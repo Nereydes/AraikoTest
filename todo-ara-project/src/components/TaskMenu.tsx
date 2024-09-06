@@ -1,8 +1,20 @@
 import { Dialog, DialogTrigger, Heading, Popover } from "react-aria-components";
 import { Button, ButtonWithIcon } from "./utils/Button";
 import { ArrowLongDownIcon, ArrowLongUpIcon, Bars3Icon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { Task, changeTaskOrder } from "../services/TaskService";
+import { useContext } from "react";
+import { ListContext } from "../App";
 
-export const TaskMenu = (props: {}) => {
+export const TaskMenu = (props: { task: Task; taskId: string }) => {
+	const { task, taskId } = props;
+	const context = useContext(ListContext);
+
+	if (!context) {
+		throw new Error("Missing context from tasks list");
+	}
+
+	const [tasksState, setTasksState] = context.tasksState;
+
 	return (
 		<DialogTrigger>
 			<ButtonWithIcon icon={<Bars3Icon className="w-5 h-5" />} label="Menu" variant="transparent" />
@@ -16,11 +28,23 @@ export const TaskMenu = (props: {}) => {
 						<PencilIcon className="w-3 h-3" />
 						Modifier la tâche
 					</Button>
-					<Button className="flex gap-1 items-center" variant="yellow">
+					<Button
+						className="flex gap-1 items-center"
+						variant="yellow"
+						onPress={() => {
+							setTasksState((prev) => changeTaskOrder("ASC", taskId, prev));
+						}}
+					>
 						<ArrowLongUpIcon className="w-3 h-3" />
 						Monter la tâche
 					</Button>
-					<Button className="flex gap-1 items-center" variant="yellow">
+					<Button
+						className="flex gap-1 items-center"
+						variant="yellow"
+						onPress={() => {
+							setTasksState((prev) => changeTaskOrder("DESC", taskId, prev));
+						}}
+					>
 						<ArrowLongDownIcon className="w-3 h-3" />
 						Descendre la tâche
 					</Button>
