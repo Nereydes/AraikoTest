@@ -5,58 +5,12 @@ export interface Task {
 	parentId?: string;
 	name: string;
 	isCompleted: boolean;
-	creationDate: Date;
+	creationDate: number;
 	order: number;
 }
 
 export const getTasks = (): Task[] => {
-	return [
-		{
-			id: "aBcD3FgHiJkLmNo",
-			name: "Manger de la choucroute",
-			isCompleted: false,
-			creationDate: new Date(2024, 9, 3, 18, 50, 36, 2),
-			order: 1,
-		},
-		{
-			id: "PqRsTuVwXyZaBcD",
-			name: "Caresser le chat",
-			isCompleted: true,
-			creationDate: new Date(2024, 9, 4, 17, 22, 10, 8),
-			order: 0,
-		},
-		{
-			id: "XyZ1wV4tYu8QpLm",
-			name: "Regarder Harry Potter 3",
-			isCompleted: false,
-			creationDate: new Date(2024, 9, 4, 17, 20, 46, 8),
-			order: 2,
-		},
-		{
-			id: "MnOpQr2StUvWxYz",
-			parentId: "XyZ1wV4tYu8QpLm",
-			name: "Brancher la télé",
-			isCompleted: true,
-			creationDate: new Date(2024, 9, 4, 17, 22, 10, 8),
-			order: 0,
-		},
-		{
-			id: "C7D8EfGhIjKlMnO",
-			parentId: "XyZ1wV4tYu8QpLm",
-			name: "Trouver la télécommande",
-			isCompleted: true,
-			creationDate: new Date(2024, 9, 4, 19, 28, 34, 20),
-			order: 1,
-		},
-		{
-			id: "C7D8AcF3IjKlMnO",
-			parentId: "XyZ1wV4tYu8QpLm",
-			name: "Allumer les enceintes",
-			isCompleted: false,
-			creationDate: new Date(2024, 9, 6, 19, 28, 34, 20),
-			order: 2,
-		},
-	];
+	return [];
 };
 
 const generateRandomString = (length: number = 15): string => {
@@ -94,7 +48,7 @@ export const createNewTask = (allTasks: Task[], parentId?: string, nextTaskId?: 
 	return {
 		id: generateNewId(allTasks),
 		name: "Nouvelle tâche",
-		creationDate: new Date(),
+		creationDate: new Date().getTime(),
 		isCompleted: false,
 		parentId,
 		order,
@@ -200,6 +154,12 @@ const updateParentTaskCompletion = (parentId: string, tasks: Task[]): Task[] => 
 		tasks = updateParentTaskCompletion(parentTask.parentId, tasks);
 	}
 	return tasks;
+};
+
+export const getJSONUrlFromTasksList = (tasks: Task[]) => {
+	const tasksJson = JSON.stringify(tasks, null, 2);
+	const blob = new Blob([tasksJson], { type: "application/json" });
+	return URL.createObjectURL(blob);
 };
 
 /* export const sortTasks = (tasks: TaskRecord): TaskRecord => {
