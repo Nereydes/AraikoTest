@@ -1,3 +1,5 @@
+import { findItemById, generateNewId, updateItem } from "./GenericService";
+
 export type TaskRecord = Record<string, Task>;
 
 export interface Task {
@@ -13,34 +15,12 @@ export const getTasks = (): Task[] => {
 	return [];
 };
 
-const generateRandomString = (length: number = 15): string => {
-	const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	let result = "";
-	for (let i = 0; i < length; i++) {
-		const randomIndex = Math.floor(Math.random() * characters.length);
-		result += characters.charAt(randomIndex);
-	}
-	return result;
-};
-
-const findTaskById = (id: string, tasks: Task[]): Task | undefined => {
-	return tasks.find((task) => task.id === id);
-};
-
-const generateNewId = (allTasks: Task[]) => {
-	let id = "";
-	do {
-		id = generateRandomString();
-	} while (findTaskById(id, allTasks));
-	return id;
-};
-
 export const createNewTask = (allTasks: Task[], parentId?: string, nextTaskId?: string): Task => {
 	const tasks = [...allTasks];
 	const sameLevelTasks = tasks.filter((task) => task.parentId === parentId);
 	let order = sameLevelTasks.length;
 	if (nextTaskId) {
-		const previousTask = findTaskById(nextTaskId, allTasks);
+		const previousTask = findItemById(nextTaskId, allTasks);
 		if (previousTask) {
 			order = previousTask.order;
 		}
@@ -55,26 +35,13 @@ export const createNewTask = (allTasks: Task[], parentId?: string, nextTaskId?: 
 	};
 };
 
-export const updateTask = (taskId: string, propertyName: string, newValue: string | boolean | number | undefined, allTasks: Task[]) => {
-	const tasks = [...allTasks];
-	const taskIndex = tasks.findIndex((task) => task.id === taskId);
-	if (taskIndex === -1) {
-		return tasks;
-	}
-	tasks[taskIndex] = {
-		...tasks[taskIndex],
-		[propertyName]: newValue,
-	};
-	return tasks;
-};
-
 const updateSameLevelTasksOrder = (task: Task, allTasks: Task[], action: "add" | "delete") => {
 	let tasks = [...allTasks];
 	const sameLevelTasks = tasks.filter((filteredTask) => task.parentId === filteredTask.parentId);
 	for (const sameLevelTask of sameLevelTasks) {
 		if (sameLevelTask.order >= task.order) {
 			const newOrder = action === "add" ? sameLevelTask.order + 1 : sameLevelTask.order - 1;
-			tasks = updateTask(sameLevelTask.id, "order", newOrder, tasks);
+			tasks = updateItem(sameLevelTask.id, "order", newOrder, tasks);
 		}
 	}
 	return tasks;
@@ -90,7 +57,7 @@ export const addTask = (task: Task, allTasks: Task[]) => {
 };
 
 export const removeTask = (taskId: string, allTasks: Task[]) => {
-	const task = findTaskById(taskId, allTasks);
+	const task = findItemById(taskId, allTasks);
 	const taskIndex = allTasks.findIndex((task) => task.id === taskId);
 	if (!task || taskIndex === -1) {
 		return allTasks;
@@ -99,8 +66,8 @@ export const removeTask = (taskId: string, allTasks: Task[]) => {
 	const subtasks = tasks.filter((subtask) => subtask.parentId === taskId);
 	const sameLevelTasks = tasks.filter((filteredTask) => task.parentId === filteredTask.parentId);
 	for (let i = 0; i < subtasks.length; i++) {
-		tasks = updateTask(subtasks[i].id, "parentId", task.parentId, tasks);
-		tasks = updateTask(subtasks[i].id, "order", sameLevelTasks.length + i, tasks);
+		tasks = updateItem(subtasks[i].id, "parentId", task.parentId, tasks);
+		tasks = updateItem(subtasks[i].id, "order", sameLevelTasks.length + i, tasks);
 	}
 	tasks.splice(taskIndex, 1);
 	return tasks;
@@ -108,7 +75,7 @@ export const removeTask = (taskId: string, allTasks: Task[]) => {
 
 export const swapOrder = (taskId: string, direction: "ASC" | "DESC", allTasks: Task[]) => {
 	let tasks = [...allTasks];
-	const task = findTaskById(taskId, tasks);
+	const task = findItemById(taskId, tasks);
 	if (!task) {
 		return tasks;
 	}
@@ -126,18 +93,18 @@ export const swapOrder = (taskId: string, direction: "ASC" | "DESC", allTasks: T
 	if (!taskToSwap) {
 		return tasks;
 	}
-	tasks = updateTask(task.id, "order", direction === "ASC" ? task.order - 1 : task.order + 1, tasks);
-	tasks = updateTask(taskToSwap.id, "order", direction === "ASC" ? taskToSwap.order + 1 : taskToSwap.order - 1, tasks);
+	tasks = updateItem(task.id, "order", direction === "ASC" ? task.order - 1 : task.order + 1, tasks);
+	tasks = updateItem(taskToSwap.id, "order", direction === "ASC" ? taskToSwap.order + 1 : taskToSwap.order - 1, tasks);
 	return tasks;
 };
 
 export const updateTaskCompletion = (isCompleted: boolean, taskId: string, allTasks: Task[]): Task[] => {
 	let tasks = [...allTasks];
-	const task = findTaskById(taskId, tasks);
+	const task = findItemById(taskId, tasks);
 	if (!task) {
 		return tasks;
 	}
-	tasks = updateTask(task.id, "isCompleted", isCompleted, tasks);
+	tasks = updateItem(task.id, "isCompleted", isCompleted, tasks);
 	if (task.parentId) {
 		tasks = updateParentTaskCompletion(task.parentId, tasks);
 	}
@@ -145,11 +112,11 @@ export const updateTaskCompletion = (isCompleted: boolean, taskId: string, allTa
 };
 
 const updateParentTaskCompletion = (parentId: string, tasks: Task[]): Task[] => {
-	const parentTask = findTaskById(parentId, tasks);
+	const parentTask = findItemById(parentId, tasks);
 	if (!parentTask) return tasks;
 	const sameLevelTasks = tasks.filter((sameLevelTask) => sameLevelTask.parentId === parentId);
 	const allSameLevelTasksCompleted = sameLevelTasks.every((task) => task.isCompleted);
-	tasks = updateTask(parentTask.id, "isCompleted", allSameLevelTasksCompleted, tasks);
+	tasks = updateItem(parentTask.id, "isCompleted", allSameLevelTasksCompleted, tasks);
 	if (parentTask.parentId) {
 		tasks = updateParentTaskCompletion(parentTask.parentId, tasks);
 	}

@@ -1,11 +1,12 @@
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { Task, addTask, createNewTask, removeTask, updateTask, updateTaskCompletion } from "../services/TaskService";
+import { Task, addTask, createNewTask, removeTask, updateTaskCompletion } from "../services/TaskService";
 import { Button, ButtonWithIcon } from "./utils/Button";
 import { formatDate } from "../utils/DateUtilities";
 import { TaskList } from "./TaskList";
 import { TaskMenu } from "./TaskMenu";
 import { useContext, useMemo, useState } from "react";
 import { ListContext } from "../App";
+import { updateItem } from "../services/GenericService";
 
 export const TaskLine = (props: { task: Task }) => {
 	const { task } = props;
@@ -23,7 +24,7 @@ export const TaskLine = (props: { task: Task }) => {
 	const subtasks = useMemo(() => tasksState.filter((subtask) => subtask.parentId === task.id), [tasksState, task]);
 
 	const updateTaskName = (newValue: string) => {
-		setTasksState((prev) => updateTask(id, "name", newValue, prev));
+		setTasksState((prev) => updateItem(id, "name", newValue, prev));
 	};
 
 	const updateCompletion = (isCompleted: boolean) => {
