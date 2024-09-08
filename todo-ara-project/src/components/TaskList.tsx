@@ -36,7 +36,7 @@ export const TaskList = (props: { tasks: Task[] }) => {
 				variant="transparent"
 				onPress={() => {
 					const newTask = createNewTask(currentList.tasks, tasks[0]?.parentId);
-					setListsState((prev) => updateItem(currentListId, "tasks", addTask(newTask, currentList.tasks), prev));
+					setListsState((prev) => updateItem(currentList.id, "tasks", addTask(newTask, currentList.tasks), prev));
 				}}
 			/>
 		</>

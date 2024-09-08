@@ -92,6 +92,6 @@ export const removeList = (listId: string, allLists: List[]): List[] => {
 	if (listIndex === -1) {
 		return lists;
 	}
-	lists.splice(listIndex, 0);
+	lists.splice(listIndex, 1);
 	return lists;
 };

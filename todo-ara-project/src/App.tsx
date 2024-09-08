@@ -6,10 +6,12 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { UploadListButton } from "./components/UploadListButton";
 import { ListPreview } from "./components/ListPreview";
 import { ListDisplay } from "./components/ListDisplay";
+import { DialogTrigger } from "react-aria-components";
+import { ListManagement } from "./components/ListManagement";
 
 export interface ListOutletContext {
 	listsState: [List[], React.Dispatch<React.SetStateAction<List[]>>];
-	currentListState: [string, React.Dispatch<React.SetStateAction<string>>];
+	currentListState: [string | undefined, React.Dispatch<React.SetStateAction<string | undefined>>];
 }
 
 export const ListContext = createContext<ListOutletContext | null>(null);
@@ -17,8 +19,10 @@ export const ListContext = createContext<ListOutletContext | null>(null);
 function App() {
 	const listsState = useState(getLists());
 	const [lists, setLists] = listsState;
-	const currentListState = useState(lists[0].id);
+	const currentListState = useState<string | undefined>(lists[0]?.id);
 	const [currentList, setCurrentList] = currentListState;
+
+	console.log(currentList);
 
 	return (
 		<ListContext.Provider value={{ listsState, currentListState }}>
@@ -38,10 +42,13 @@ function App() {
 							<span className="text-sm text-light/60">
 								Choisissez une liste pour voir les tâches à effectuer, créez-en une nouvelle ou importez-la depuis un fichier existant !
 							</span>
-							<Button variant="yellow" size="md" className="w-1/2">
-								<PlusIcon className="w-4 h-4" />
-								Ajouter une nouvelle liste
-							</Button>
+							<DialogTrigger>
+								<Button variant="yellow" size="md" className="w-1/2">
+									<PlusIcon className="w-4 h-4" />
+									Ajouter une nouvelle liste
+								</Button>
+								<ListManagement />
+							</DialogTrigger>
 							<UploadListButton className="w-1/2" />
 						</div>
 						<p className="text-lg mt-20">
