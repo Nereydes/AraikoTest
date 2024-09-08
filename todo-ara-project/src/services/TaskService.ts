@@ -11,10 +11,6 @@ export interface Task {
 	order: number;
 }
 
-export const getTasks = (): Task[] => {
-	return [];
-};
-
 export const createNewTask = (allTasks: Task[], parentId?: string, nextTaskId?: string): Task => {
 	const tasks = [...allTasks];
 	const sameLevelTasks = tasks.filter((task) => task.parentId === parentId);
@@ -73,7 +69,9 @@ export const removeTask = (taskId: string, allTasks: Task[]) => {
 	return tasks;
 };
 
-export const swapOrder = (taskId: string, direction: "ASC" | "DESC", allTasks: Task[]) => {
+export type SwapDirection = "ASC" | "DESC";
+
+export const swapOrder = (taskId: string, direction: SwapDirection, allTasks: Task[]) => {
 	let tasks = [...allTasks];
 	const task = findItemById(taskId, tasks);
 	if (!task) {

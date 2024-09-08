@@ -1,11 +1,12 @@
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
-import { ButtonWithIcon } from "./utils/Button";
+import { Button, ButtonWithIcon } from "./utils/Button";
 import { useContext } from "react";
 import { ListContext } from "../App";
 import { Task } from "../services/TaskService";
+import { generateClassName } from "../utils/StyleUtilities";
 
 export const UploadListButton = (props: { className?: string }) => {
-	const context = useContext(ListContext);
+	/* const context = useContext(ListContext);
 
 	if (!context) {
 		throw new Error("Missing context from tasks list");
@@ -29,10 +30,27 @@ export const UploadListButton = (props: { className?: string }) => {
 			}
 		};
 		reader.readAsText(file);
-	};
+	}; */
 	return (
-		<ButtonWithIcon {...props} icon={<ArrowUpTrayIcon className="w-5 h-5" />} label="Importer une liste" variant="yellow">
-			<input type="file" accept=".json" onChange={handleFileChange} />
-		</ButtonWithIcon>
+		<Button variant="yellow" size="md" className={generateClassName(props.className, "!p-0")}>
+			<label htmlFor="doc" className="cursor-pointer p-3 flex items-center gap-2">
+				<ArrowUpTrayIcon className="w-4 h-4" />
+				Importer une liste
+				<input
+					id="doc"
+					name="doc"
+					type="file"
+					accept=".json"
+					//onChange={handleFileChange}
+					hidden
+				/>
+			</label>
+		</Button>
 	);
 };
+
+{
+	/* <ButtonWithIcon {...props} icon={<ArrowUpTrayIcon className="w-5 h-5" />} label="Importer une liste" variant="yellow">
+			
+		</ButtonWithIcon> */
+}

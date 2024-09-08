@@ -1,9 +1,10 @@
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { Task, TaskRecord, addTask, createNewTask } from "../services/TaskService";
 import { TaskLine } from "./TaskLine";
-import { Button } from "./utils/Button";
-import { useContext } from "react";
+import { Button, ButtonWithIcon } from "./utils/Button";
+import { useContext, useMemo } from "react";
 import { ListContext } from "../App";
+import { updateItem } from "../services/GenericService";
 
 export const TaskList = (props: { tasks: Task[] }) => {
 	const { tasks } = props;
@@ -14,9 +15,12 @@ export const TaskList = (props: { tasks: Task[] }) => {
 		throw new Error("Missing context from tasks list");
 	}
 
-	const [tasksState, setTasksState] = context.tasksState;
+	const [listsState, setListsState] = context.listsState;
+	const [currentListId] = context.currentListState;
 
-	return (
+	const currentList = useMemo(() => listsState.find((list) => list.id === currentListId), [listsState, currentListId]);
+
+	return currentList ? (
 		<>
 			<ul className="ml-10">
 				{tasks
@@ -25,17 +29,16 @@ export const TaskList = (props: { tasks: Task[] }) => {
 						<TaskLine key={task.id} task={task} />
 					))}
 			</ul>
-			<Button
-				className="ml-12 flex gap-1 items-center"
+			<ButtonWithIcon
+				icon={<PlusIcon className="w-3 h-3" />}
+				label="Ajouter une tâche"
+				className="ml-10 flex gap-1 items-center"
 				variant="transparent"
 				onPress={() => {
-					const newTask = createNewTask(tasksState, tasks[0].parentId);
-					setTasksState((prev) => addTask(newTask, prev));
+					const newTask = createNewTask(currentList.tasks, tasks[0]?.parentId);
+					setListsState((prev) => updateItem(currentListId, "tasks", addTask(newTask, currentList.tasks), prev));
 				}}
-			>
-				<PlusIcon className="w-3 h-3" />
-				Ajouter une tâche
-			</Button>
+			/>
 		</>
-	);
+	) : null;
 };
