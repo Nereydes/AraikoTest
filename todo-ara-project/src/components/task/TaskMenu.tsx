@@ -1,15 +1,32 @@
-import { Dialog, DialogTrigger, Heading, Popover } from "react-aria-components";
-import { Button, ButtonWithIcon } from "./utils/Button";
-import { ArrowLongDownIcon, ArrowLongUpIcon, Bars3Icon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { SwapDirection, Task, removeTask, swapOrder } from "../services/TaskService";
-import { useContext } from "react";
-import { ListContext } from "../App";
+import { Dialog, DialogTrigger, Popover } from "react-aria-components";
+import { ArrowLongDownIcon, ArrowLongUpIcon, Bars3Icon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { SwapDirection } from "../../services/TaskService";
+import { Button, ButtonWithIcon } from "../utils/Button";
 
+/**
+ * Button to display a menu of options with various functions for managing a task.
+ */
 export const TaskMenu = (props: {
+	/**
+	 * Displays or not the button to move the task up the list.
+	 */
 	canGoUp: boolean;
+	/**
+	 * Displays or not the button to move the task down the list.
+	 */
 	canGoDown: boolean;
+	/**
+	 * Function to delete a task on click.
+	 */
 	deleteTask: () => void;
+	/**
+	 * Changes the order of the task in the list.
+	 * @param direction "ASC" move the task up the list, "DESC" move the task down the list.
+	 */
 	swapTaskOrder: (direction: SwapDirection) => void;
+	/**
+	 * Adds a subtask to the end of the subtask list.
+	 */
 	addSubtask: () => void;
 }) => {
 	const { canGoDown, canGoUp, deleteTask, swapTaskOrder, addSubtask } = props;

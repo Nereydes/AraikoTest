@@ -1,22 +1,26 @@
-import { ColorThumb, ColorWheel, ColorWheelTrack, Dialog, Input, Label, Modal, parseColor, TextField } from "react-aria-components";
-import { addList, createNewList, List } from "../services/ListService";
+import { ColorThumb, ColorWheel, ColorWheelTrack, Dialog, Input, Label, Modal, TextField } from "react-aria-components";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { Button, ButtonWithIcon } from "./utils/Button";
-import { useContext, useMemo, useState } from "react";
-import { ListContext } from "../App";
-import { updateItem } from "../services/GenericService";
+import { useMemo } from "react";
+import { useListContext } from "../utils/ContextHook";
+import { addList, createNewList, List } from "../../services/ListService";
+import { updateItem } from "../../services/GenericService";
+import { Button, ButtonWithIcon } from "../utils/Button";
 
+/**
+ * Component displaying a modal for creating or updating a list.
+ * @param {List | undefined} props.list If a list has been passed in props, it will be updated when the form is validated. Otherwise, a new list will be created.
+ */
 export const ListManagement = (props: { list?: List }) => {
 	const { list } = props;
 
-	const context = useContext(ListContext);
+	const {
+		listsState: [lists, setLists],
+	} = useListContext();
 
-	if (!context) {
-		throw new Error("Missing context from tasks list");
-	}
-
-	const [listsState, setListsState] = context.listsState;
-
+	/**
+	 * Allows to save the list name and color locally and update them.
+	 * Updates when a new list is passed to props.
+	 */
 	const currentList = useMemo(
 		() => ({
 			name: list?.name,
@@ -27,18 +31,20 @@ export const ListManagement = (props: { list?: List }) => {
 
 	const createList = () => {
 		if (currentList.name && currentList.color) {
-			const newList = createNewList(listsState);
-			newList.color = currentList.color;
-			newList.name = currentList.name;
-			setListsState((prev) => addList(newList, prev));
+			const newList = {
+				...createNewList(lists),
+				color: currentList.color,
+				name: currentList.name,
+			};
+			setLists((prev) => addList(newList, prev));
 		}
 	};
 
 	const updateList = () => {
 		if (list && currentList.name && currentList.color) {
-			let lists = updateItem(list.id, "name", currentList.name, listsState);
-			lists = updateItem(list.id, "color", currentList.color, lists);
-			setListsState(lists);
+			let listsUpdated = updateItem(list.id, "name", currentList.name, lists);
+			listsUpdated = updateItem(list.id, "color", currentList.color, listsUpdated);
+			setLists(listsUpdated);
 		}
 	};
 

@@ -1,7 +1,14 @@
 import { findItemById, generateNewId, updateItem } from "./GenericService";
 
-export type TaskRecord = Record<string, Task>;
-
+/**
+ * Represents a task.
+ * @property id - A unique identifier.
+ * @property parentId - An optional ID of the parent task (if any).
+ * @property name - The name of the task.
+ * @property isCompleted - A boolean indicating whether the task is completed.
+ * @property creationDate - The timestamp of when the task was created.
+ * @property order - The order of the task within the list.
+ */
 export interface Task {
 	id: string;
 	parentId?: string;
@@ -11,6 +18,20 @@ export interface Task {
 	order: number;
 }
 
+/**
+ * Represents the possible directions for swapping items.
+ * @type ASC - Indicates ascending order.
+ * @type DESC - Indicates descending order.
+ */
+export type SwapDirection = "ASC" | "DESC";
+
+/**
+ * Creates a new task with a unique ID and default properties.
+ * @param allTasks - The existing array of tasks to ensure the generated ID is unique.
+ * @param parentId - An optional ID of the parent task.
+ * @param nextTaskId - An optional ID of the task to determine the order.
+ * @returns A new `Task` object with a unique `id`, default `name`, current timestamp for `creationDate`, and other properties.
+ */
 export const createNewTask = (allTasks: Task[], parentId?: string, nextTaskId?: string): Task => {
 	const tasks = [...allTasks];
 	const sameLevelTasks = tasks.filter((task) => task.parentId === parentId);
@@ -31,6 +52,13 @@ export const createNewTask = (allTasks: Task[], parentId?: string, nextTaskId?: 
 	};
 };
 
+/**
+ * Updates the order of tasks at the same level as the specified task based on the action (add or delete).
+ * @param task - The task whose order change will affect other tasks at the same level.
+ * @param allTasks - The existing array of tasks.
+ * @param action - The action to perform: "add" to increase order for tasks with the same parent, "delete" to decrease order.
+ * @returns A new array of tasks with updated order values for tasks at the same level.
+ */
 const updateSameLevelTasksOrder = (task: Task, allTasks: Task[], action: "add" | "delete") => {
 	let tasks = [...allTasks];
 	const sameLevelTasks = tasks.filter((filteredTask) => task.parentId === filteredTask.parentId);
@@ -43,6 +71,12 @@ const updateSameLevelTasksOrder = (task: Task, allTasks: Task[], action: "add" |
 	return tasks;
 };
 
+/**
+ * Adds a new task to the array of tasks and updates the order of other tasks at the same level.
+ * @param task - The task to add.
+ * @param allTasks - The existing array of tasks.
+ * @returns A new array of tasks with the added task and updated order for tasks at the same level.
+ */
 export const addTask = (task: Task, allTasks: Task[]) => {
 	let tasks = updateSameLevelTasksOrder(task, allTasks, "add");
 	if (task.parentId) {
@@ -52,6 +86,12 @@ export const addTask = (task: Task, allTasks: Task[]) => {
 	return tasks;
 };
 
+/**
+ * Removes a task from the array of tasks and updates the order of other tasks at the same level.
+ * @param taskId - The ID of the task to remove.
+ * @param allTasks - The existing array of tasks.
+ * @returns A new array of tasks with the specified task removed and order adjusted for other tasks.
+ */
 export const removeTask = (taskId: string, allTasks: Task[]) => {
 	const task = findItemById(taskId, allTasks);
 	const taskIndex = allTasks.findIndex((task) => task.id === taskId);
@@ -69,8 +109,13 @@ export const removeTask = (taskId: string, allTasks: Task[]) => {
 	return tasks;
 };
 
-export type SwapDirection = "ASC" | "DESC";
-
+/**
+ * Swaps the order of a task with another task at the same level based on the specified direction.
+ * @param taskId - The ID of the task to swap.
+ * @param direction - The direction to swap: "ASC" to move up, "DESC" to move down.
+ * @param allTasks - The existing array of tasks.
+ * @returns A new array of tasks with the order of the specified task swapped with another task at the same level.
+ */
 export const swapOrder = (taskId: string, direction: SwapDirection, allTasks: Task[]) => {
 	let tasks = [...allTasks];
 	const task = findItemById(taskId, tasks);
@@ -96,6 +141,13 @@ export const swapOrder = (taskId: string, direction: SwapDirection, allTasks: Ta
 	return tasks;
 };
 
+/**
+ * Updates the completion status of a task and its parent task if applicable.
+ * @param isCompleted - The new completion status of the task.
+ * @param taskId - The ID of the task to update.
+ * @param allTasks - The existing array of tasks.
+ * @returns A new array of tasks with the updated completion status for the specified task and its parent task.
+ */
 export const updateTaskCompletion = (isCompleted: boolean, taskId: string, allTasks: Task[]): Task[] => {
 	let tasks = [...allTasks];
 	const task = findItemById(taskId, tasks);
@@ -109,6 +161,13 @@ export const updateTaskCompletion = (isCompleted: boolean, taskId: string, allTa
 	return tasks;
 };
 
+/**
+ * Recursively updates the completion status of a parent task based on the completion status of its subtasks.
+ * The function will traverse up the hierarchy, updating each parent task until the topmost parent is reached.
+ * @param parentId - The ID of the parent task to update.
+ * @param tasks - The existing array of tasks.
+ * @returns A new array of tasks with the updated completion status for the parent task and its ancestors.
+ */
 const updateParentTaskCompletion = (parentId: string, tasks: Task[]): Task[] => {
 	const parentTask = findItemById(parentId, tasks);
 	if (!parentTask) return tasks;
@@ -121,6 +180,11 @@ const updateParentTaskCompletion = (parentId: string, tasks: Task[]): Task[] => 
 	return tasks;
 };
 
+/**
+ * Converts an array of tasks into a JSON URL that can be used to download the tasks as a JSON file.
+ * @param tasks - The array of tasks to convert to JSON.
+ * @returns A URL representing the JSON file that contains the tasks data.
+ */
 export const getJSONUrlFromTasksList = (tasks: Task[]) => {
 	const tasksJson = JSON.stringify(tasks, null, 2);
 	const blob = new Blob([tasksJson], { type: "application/json" });

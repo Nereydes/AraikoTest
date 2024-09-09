@@ -1,22 +1,22 @@
-import { useContext, useMemo } from "react";
-import { ListContext } from "../App";
-import { ButtonWithIcon } from "./utils/Button";
+import { useMemo } from "react";
+import { ButtonWithIcon } from "../utils/Button";
 import { DocumentArrowDownIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { TaskList } from "./TaskList";
+import { TaskList } from "../task/TaskList";
 import { DialogTrigger } from "react-aria-components";
+import { removeList } from "../../services/ListService";
+import { getJSONUrlFromTasksList } from "../../services/TaskService";
+import { useListContext } from "../utils/ContextHook";
 import { ListManagement } from "./ListManagement";
-import { removeList } from "../services/ListService";
-import { getJSONUrlFromTasksList } from "../services/TaskService";
 
-export const ListDisplay = (props: {}) => {
-	const context = useContext(ListContext);
-
-	if (!context) {
-		throw new Error("Missing context from tasks list");
-	}
-
-	const [currentListId, setCurrentListId] = context.currentListState;
-	const [lists, setLists] = context.listsState;
+/**
+ * Component for displaying a list, managing it and its tasks.
+ * @returns The component if a list is selected, null otherwise.
+ */
+export const ListDisplay = () => {
+	const {
+		listsState: [lists, setLists],
+		currentListState: [currentListId, setCurrentListId],
+	} = useListContext();
 
 	const currentList = useMemo(() => lists.find((list) => list.id === currentListId), [lists, currentListId]);
 
