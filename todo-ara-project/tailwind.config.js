@@ -16,6 +16,10 @@ module.exports = {
 				light: "#f5f3f5",
 				dark: "#2c3038",
 			},
+			screens: {
+				"3xl": "2000px",
+				"4xl": "2200px",
+			},
 		},
 	},
 	plugins: [require("tailwind-scrollbar")],

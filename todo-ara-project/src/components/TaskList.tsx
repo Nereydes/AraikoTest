@@ -22,7 +22,7 @@ export const TaskList = (props: { tasks: Task[] }) => {
 
 	return currentList ? (
 		<>
-			<ul className="ml-10">
+			<ul className="ml-2 md:ml-10">
 				{tasks
 					.sort((a, b) => a.order - b.order)
 					.map((task) => (
@@ -32,7 +32,7 @@ export const TaskList = (props: { tasks: Task[] }) => {
 			<ButtonWithIcon
 				icon={<PlusIcon className="w-3 h-3" />}
 				label="Ajouter une tâche"
-				className="ml-10 flex gap-1 items-center"
+				className="ml-2 md:ml-10 flex gap-1 items-center"
 				variant="transparent"
 				onPress={() => {
 					const newTask = createNewTask(currentList.tasks, tasks[0]?.parentId);

@@ -22,49 +22,110 @@ function App() {
 	const currentListState = useState<string | undefined>(lists[0]?.id);
 	const [currentList, setCurrentList] = currentListState;
 
-	console.log(currentList);
-
 	return (
 		<ListContext.Provider value={{ listsState, currentListState }}>
-			{/* <Header />
-			<div className="relative top-40 p-10 pb-20 md:pb-0 h-full w-full">
-				 <a href={getJSONUrlFromTasksList(tasks)} download>
-					<ButtonWithIcon icon={<DocumentArrowDownIcon className="w-4 h-4" />} variant="yellow" label="Télécharger la liste" />
-				</a> 
-				<TaskList tasks={tasks.filter((task) => task.parentId === undefined)} />
-			</div>
-			<MobileFooter /> */}
-			<div className="h-screen max-h-screen w-full flex p-3 items-center">
-				<div className="basis-1/2 h-full px-72 py-52">
-					<div className="h-full w-full">
-						<div className="flex flex-col gap-8 items-center">
-							<h1 className="text-4xl place-self-start font-bold">Mes supers listes</h1>
-							<span className="text-sm text-light/60">
-								Choisissez une liste pour voir les tâches à effectuer, créez-en une nouvelle ou importez-la depuis un fichier existant !
-							</span>
-							<DialogTrigger>
-								<Button variant="yellow" size="md" className="w-1/2">
-									<PlusIcon className="w-4 h-4" />
-									Ajouter une nouvelle liste
-								</Button>
-								<ListManagement />
-							</DialogTrigger>
-							<UploadListButton className="w-1/2" />
-						</div>
-						<p className="text-lg mt-20">
+			<div className="h-screen w-screen p-3 xl:flex">
+				<div className="w-full h-[35%] min-h-[520px] p-8 xl:basis-1/2 xl:h-full xl:px-8 xl:py-32 2xl:px-20 3xl:px-60 4xl:px-72">
+					<div className="h-3/5 xl:h-1/3 w-full space-y-8">
+						<h1 className="text-4xl place-self-start font-bold">Mes supers listes</h1>
+						<span className="text-sm text-light/60 place-self-start">
+							Choisissez une liste pour voir les tâches à effectuer, créez-en une nouvelle ou importez-la depuis un fichier existant !
+						</span>
+						<DialogTrigger>
+							<Button variant="yellow" size="md" className="w-full 2xl:w-1/2 max-w-96 m-auto">
+								<PlusIcon className="w-4 h-4" />
+								Ajouter une nouvelle liste
+							</Button>
+							<ListManagement />
+						</DialogTrigger>
+						<UploadListButton className="w-full 2xl:w-1/2 max-w-96 m-auto" />
+					</div>
+					<div className="h-2/5 xl:h-2/3 w-full ">
+						<p className="text-lg">
 							Listes créées <span className="text-light/60 text-sm">({lists.length})</span>
 						</p>
-						<div className="p-1 flex flex-wrap gap-8 mt-5 h-1/2 overflow-auto scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-light scrollbar-track-dark">
+						<div className="h-4/5 overflow-auto scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-light scrollbar-track-dark p-1 flex flex-wrap gap-8 ">
+							{lists.map((list) => (
+								<ListPreview key={list.id} list={list} />
+							))}
+							{lists.map((list) => (
+								<ListPreview key={list.id} list={list} />
+							))}
+							{lists.map((list) => (
+								<ListPreview key={list.id} list={list} />
+							))}
+							{lists.map((list) => (
+								<ListPreview key={list.id} list={list} />
+							))}
+							{lists.map((list) => (
+								<ListPreview key={list.id} list={list} />
+							))}
+							{lists.map((list) => (
+								<ListPreview key={list.id} list={list} />
+							))}
+							{lists.map((list) => (
+								<ListPreview key={list.id} list={list} />
+							))}
 							{lists.map((list) => (
 								<ListPreview key={list.id} list={list} />
 							))}
 						</div>
 					</div>
 				</div>
-				<div className="basis-1/2 h-full rounded-xl bg-light text-dark p-20">
+				<div className="w-full h-full md:h-[65%] xl:h-full xl:basis-1/2 rounded-xl bg-light text-dark pt-1 md:p-20">
 					<ListDisplay />
 				</div>
 			</div>
+			{/* <div className="h-screen max-h-screen w-full xl:flex xl:flex-row p-3 items-center">
+				<div className="max-h-[40%] ">
+					<div className="flex flex-col gap-8 items-center">
+						<h1 className="text-4xl place-self-start font-bold">Mes supers listes</h1>
+						<span className="text-sm text-light/60 place-self-start">
+							Choisissez une liste pour voir les tâches à effectuer, créez-en une nouvelle ou importez-la depuis un fichier existant !
+						</span>
+						<DialogTrigger>
+							<Button variant="yellow" size="md" className="w-full 2xl:w-1/2 max-w-96">
+								<PlusIcon className="w-4 h-4" />
+								Ajouter une nouvelle liste
+							</Button>
+							<ListManagement />
+						</DialogTrigger>
+						<UploadListButton className="w-full 2xl:w-1/2 max-w-96" />
+					</div>
+					<p className="text-lg mt-20">
+						Listes créées <span className="text-light/60 text-sm">({lists.length})</span>
+					</p>
+					<div className="p-1 flex flex-wrap gap-8 mt-5 h-1/3 xl:h-1/2 overflow-auto scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-light scrollbar-track-dark">
+						{lists.map((list) => (
+							<ListPreview key={list.id} list={list} />
+						))}
+						{lists.map((list) => (
+							<ListPreview key={list.id} list={list} />
+						))}
+						{lists.map((list) => (
+							<ListPreview key={list.id} list={list} />
+						))}
+						{lists.map((list) => (
+							<ListPreview key={list.id} list={list} />
+						))}
+						{lists.map((list) => (
+							<ListPreview key={list.id} list={list} />
+						))}
+						{lists.map((list) => (
+							<ListPreview key={list.id} list={list} />
+						))}
+						{lists.map((list) => (
+							<ListPreview key={list.id} list={list} />
+						))}
+						{lists.map((list) => (
+							<ListPreview key={list.id} list={list} />
+						))}
+					</div>
+				</div>
+				<div className="xl:basis-1/2 xl:h-full rounded-xl bg-light text-dark p-20">
+					<ListDisplay />
+				</div>
+			</div> */}
 		</ListContext.Provider>
 	);
 }
